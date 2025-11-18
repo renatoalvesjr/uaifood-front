@@ -1,6 +1,7 @@
 "use server";
 import api from "@/lib/api";
 import { Login } from "@/models/login.interface";
+import { RegisterData } from "@/models/register.interface";
 import { cookies } from "next/headers";
 
 export async function signIn({ email, password }: Login) {
@@ -44,6 +45,19 @@ export async function fetchUserData(token: string) {
     },
   });
   return response.data;
+}
+
+export async function createAccount({ name, email, password }: RegisterData) {
+  try {
+    await api.post("/auth/register", {
+      name,
+      email,
+      password,
+    });
+  } catch (error) {
+    console.error("Registration failed:", error);
+    throw error;
+  }
 }
 
 export async function getCookies() {

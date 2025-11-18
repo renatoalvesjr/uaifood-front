@@ -1,59 +1,124 @@
 "use client";
 
 import { useState } from "react";
-import { signup } from "./actions";
+import { Input } from "@/components/ui/input";
+import { createAccount } from "@/services/auth.service";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
+  const [Loading, setLoading] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = async (formData: FormData) => {
-    setError(null); // Clear previous errors
-    const result = await signup(formData);
-    if (result?.error) {
-      setError(result.error);
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+      await createAccount({
+        name: `${firstName} ${lastName}`,
+        email,
+        password,
+      });
+    } catch (error) {
+      setError((error as Error).message);
+      setLoading(false);
     }
   };
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">Sign Up</h2>
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Email
-        </label>
-        <input
-          id="email"
+        <Link href="/" className="text-red-500 text-4xl font-bold text-center">
+          UaiFood
+        </Link>
+        <h2 className="text-2xl font-bold">Sign In</h2>
+        <p className="text-gray-700 text-sm">
+          Already have an account?{" "}
+          <Link href="/login" className="text-blue-500 underline">
+            Log in
+          </Link>{" "}
+          now!
+        </p>
+      </div>
+      <div className="flex gap-4">
+        <div>
+          <label htmlFor="first-name">First Name</label>
+          <Input
+            type="text"
+            id="first-name"
+            name="firstName"
+            placeholder="First Name"
+            onChange={(e) => {
+              setFirstName(e.target.value);
+            }}
+          />
+        </div>
+        <div>
+          <label htmlFor="last-name">Last Name</label>
+          <Input
+            type="text"
+            id="last-name"
+            name="lastName"
+            placeholder="Last Name"
+            onChange={(e) => {
+              setLastName(e.target.value);
+            }}
+          />
+        </div>
+      </div>
+      <div>
+        <label htmlFor="email">Email</label>
+        <Input
           type="email"
+          id="email"
           name="email"
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          placeholder="Email"
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
         />
       </div>
       <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Password
-        </label>
-        <input
-          id="password"
+        <label htmlFor="password">Password</label>
+        <Input
           type="password"
+          id="password"
           name="password"
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          placeholder="Password"
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
         />
       </div>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      <button
+      <div>
+        <label htmlFor="confirm-password">Confirm Password</label>
+        <Input
+          type="password"
+          id="confirm-password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+          }}
+        />
+      </div>
+      {error && <p className="text-red-500">{error}</p>}
+      <Button
+        disabled={Loading}
         type="submit"
-        className="mt-4 rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
+        className="bg-red-700 hover:bg-red-800 text-white border-2 border-black"
       >
-        Sign Up
-      </button>
+        {Loading ? "Signing up..." : "Sign Up"}
+      </Button>
     </form>
   );
 }

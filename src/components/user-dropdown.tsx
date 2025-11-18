@@ -1,3 +1,4 @@
+"use client";
 import { useAuth } from "@/contexts/auth.context";
 import { Button } from "./ui/button";
 import {
@@ -7,24 +8,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { signOut } from "@/services/auth.service";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export function UserDropdown() {
-  const { user, checkAuthStatus, logout } = useAuth();
+export function UserDropdown(this: never) {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const handleMenuItemClick = (route: string) => {
+    router.push(route);
+  };
+
+  const handleMenuItemFunction = (func: () => unknown) => {
+    func();
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>{user?.name}</Button>
+        <Button className="">{user?.name}</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Link href="/profile">Profile</Link>
+          <DropdownMenuItem
+            onClick={handleMenuItemClick.bind(this, "/profile")}
+          >
+            Profile
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <button onClick={logout}>Logout</button>
+          <DropdownMenuItem onClick={handleMenuItemFunction.bind(this, logout)}>
+            Logout
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

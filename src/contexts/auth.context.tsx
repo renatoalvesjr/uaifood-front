@@ -59,7 +59,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(profile);
       } catch (error) {
         setUser(null);
-        signOut(); // Limpa cookie inválido
+        signOut();
+        console.error("Error fetching user data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuthStatus();
     router.push("/login");
     return;
-  }, [checkAuthStatus]);
+  }, [checkAuthStatus, router]);
 
   const isAuthenticated = !!user;
 

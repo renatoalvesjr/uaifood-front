@@ -1,28 +1,34 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/auth.context";
 import { signIn } from "@/services/auth.service";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export const LoginForm = () => {
   const { isAuthenticated, isLoading, checkAuthStatus } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [state, setState] = useState<{ error?: string }>({});
+  const searchParams = useSearchParams();
 
   const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      router.push("/");
+      router.push("/profile");
     }
   }, [isAuthenticated, isLoading, router]);
 
   const handleSubmit = async () => {
     try {
+      const redirectTo = searchParams.get("redirect") || "/profile";
+      console.log("Redirecting to:", redirectTo);
       await signIn({ email, password });
       await checkAuthStatus();
-      router.push("/");
+      router.push(redirectTo);
     } catch (error: Error | unknown) {
       setState(
         error instanceof Error
@@ -34,7 +40,12 @@ export const LoginForm = () => {
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-4">
+      <Link href="/" className="text-red-500 text-4xl font-bold text-center">
+        UaiFood
+      </Link>
       <h2 className="text-2xl font-bold">Sign In</h2>
+      <p className="text-gray-700 text-sm">Or <Link href="/register" className="text-blue-500 underline">create an account</Link> now!</p>
+
       <div>
         <label
           htmlFor="email"
@@ -42,7 +53,7 @@ export const LoginForm = () => {
         >
           Email
         </label>
-        <input
+        <Input
           id="email"
           type="email"
           name="email"
@@ -50,7 +61,6 @@ export const LoginForm = () => {
             setEmail(e.target.value);
           }}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
       </div>
       <div>
@@ -60,7 +70,7 @@ export const LoginForm = () => {
         >
           Password
         </label>
-        <input
+        <Input
           id="password"
           type="password"
           name="password"
@@ -68,17 +78,16 @@ export const LoginForm = () => {
             setPassword(e.target.value);
           }}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
       </div>
       {state?.error && <p className="text-red-500">{state.error}</p>}
-      <button
+      <Button
         type="submit"
         disabled={isLoading}
-        className="mt-4 rounded-md bg-indigo-600 px-4 py-2 text-white font-medium hover:bg-indigo-700"
+        className="bg-red-700 hover:bg-red-800 text-white border-2 border-black"
       >
         {isLoading ? "Logging in..." : "Log In"}
-      </button>
+      </Button>
     </form>
   );
 };
