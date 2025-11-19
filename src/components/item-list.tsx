@@ -49,7 +49,7 @@ export function ItemList() {
   if (!isAuthenticated) {
     return (
       <p className="text-center text-lg mt-8">
-        Faça <Link href="/login" className="font-bold cursor-pointer hover:underline">login</Link> para visualizar o cardápio e fazer
+        Faça <Link href="/login" className="font-bold cursor-pointer hover:underline ">login</Link> para visualizar o cardápio e fazer
         seu pedido!
       </p>
     );
@@ -72,11 +72,11 @@ export function ItemList() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {items.map((item) => (
         <div
           key={item.id}
-          className="border p-4 rounded-lg shadow-sm flex flex-col justify-between hover:shadow-lg transition-shadow"
+          className="p-4 flex bg-cyan-50 border-2 border-black shadow-[8px_8px_0_0_#000] flex-col justify-between hover:shadow-[5px_5px_0_0_#000] transition-shadow"
         >
           <div>
             <h3 className="text-xl font-bold">{item.description}</h3>
@@ -86,7 +86,7 @@ export function ItemList() {
                 : "Categoria não especificada"}
             </p>
           </div>
-          <div className="mt-4 flex justify-between items-center">
+          <div className="mt-4 gap-4 flex flex-col justify-between items-center">
             <span className="text-lg font-semibold text-green-600">
               R$ {item.unitPrice.toFixed(2).replace(".", ",")}
             </span>

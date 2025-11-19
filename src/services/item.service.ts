@@ -1,25 +1,21 @@
 "use server";
-import api from "@/lib/api";
 import { Item } from "@/models/item.interface";
-import { PaginationMeta } from "@/models/pagination-meta.interface";
+import { Category } from "@/models/category.interface";
+import api from "@/lib/api";
 
-interface PaginatedItems {
-  data: Item[];
-  meta: PaginationMeta;
+export interface CreateItemPayload {
+  name: string;
+  description: string;
+  price: number;
+  categoryId: number;
 }
-const ITEM_ENDPOINT = "/item";
 
-export async function getItems(
-  page: number = 1,
-  limit: number = 20
-): Promise<Item[]> {
-  try {
-    const response = await api.get<PaginatedItems>(
-      `${ITEM_ENDPOINT}?page=${page}&limit=${limit}`
-    );
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching items:", error);
-    throw error;
-  }
-}
+export const createItem = async (payload: CreateItemPayload): Promise<Item> => {
+  const response = await api.post<Item>("/items", payload);
+  return response.data;
+};
+
+export const getCategories = async (): Promise<Category[]> => {
+  const response = await api.get<Category[]>("/categories");
+  return response.data;
+};

@@ -12,10 +12,8 @@ export default function Home() {
   return (
     <div>
       <TopMenu />
-      <div className="flex flex-col border items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-        <div>UAIFood</div>
+      <div className="flex flex-col items-center justify-centers dark:bg-black">
         {isLoading && <p>Loading...</p>}
-        {isAuthenticated && !isLoading && <p>Welcome, {user?.name}!</p>}
         <ItemList />
       </div>
     </div>
