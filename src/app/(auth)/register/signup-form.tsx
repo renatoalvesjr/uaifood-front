@@ -35,20 +35,22 @@ export default function SignupForm() {
   };
 
   return (
-    <form action={handleSubmit} className="flex flex-col gap-4">
-      <div>
-        <Link href="/" className="text-red-500 text-4xl font-bold text-center">
-          UaiFood
-        </Link>
-        <h2 className="text-2xl font-bold">Sign In</h2>
-        <p className="text-gray-700 text-sm">
-          Already have an account?{" "}
-          <Link href="/login" className="text-blue-500 underline">
-            Log in
-          </Link>{" "}
-          now!
-        </p>
-      </div>
+    <form
+      action={handleSubmit}
+      className="flex flex-col gap-4 border-2 border-black shadow-[8px_8px_0_0_#000] bg-cyan-50 p-8 "
+    >
+      <Link href="/" className="text-red-500 text-4xl font-bold text-center">
+        UaiFood
+      </Link>
+      <h2 className="text-2xl font-bold">Sign up</h2>
+      <p className="text-gray-700 text-sm">
+        Already have an account?{" "}
+        <Link href="/login" className="text-blue-500 underline">
+          Log in
+        </Link>{" "}
+        now!
+      </p>
+
       <div className="flex gap-4">
         <div>
           <label htmlFor="first-name">First Name</label>

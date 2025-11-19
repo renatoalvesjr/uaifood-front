@@ -24,7 +24,7 @@ export function TopMenu() {
   ];
 
   return (
-    <header className="flex w-full items-center justify-between p-4 bg-red-500 shadow-md border-b">
+    <header className="flex w-full items-center justify-between p-4 bg-red-500 shadow-md border-b-4 border-black">
       <Link href="/" className="flex text-white font-bold text-xl p-2">
         UaiFood
       </Link>

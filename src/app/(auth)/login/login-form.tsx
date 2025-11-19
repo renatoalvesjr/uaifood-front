@@ -39,7 +39,7 @@ export const LoginForm = () => {
   };
 
   return (
-    <form action={handleSubmit} className="flex flex-col gap-4">
+    <form action={handleSubmit} className="flex flex-col gap-4 border-2 border-black shadow-[8px_8px_0_0_#000] bg-cyan-50 p-8 ">
       <Link href="/" className="text-red-500 text-4xl font-bold text-center">
         UaiFood
       </Link>
