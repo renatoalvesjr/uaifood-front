@@ -8,12 +8,19 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
 } from "react";
 import { Item } from "@/models/item.interface";
 import { CartItem, CartContextType } from "@/models/cart.interface";
+import {
+  getCartData,
+  changeItemQuantityApi,
+  confirmCartApi,
+  addItemToCart,
+} from "@/services/cart.service";
+import { useAuth } from "./auth.context";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const CART_STORAGE_KEY = "uaifood-cart";
 
 export function useCart() {
   const context = useContext(CartContext);
@@ -31,76 +38,119 @@ interface CartProviderProps {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [isClient, setIsClient] = useState(false); // Novo estado para controlar a montagem no cliente
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [totalValue, setTotalValue] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Efeito 1: Carrega o carrinho do localStorage (roda apenas no cliente)
-  useEffect(() => {
-    setIsClient(true);
-    if (typeof window !== "undefined") {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (storedCart) {
-        try {
-          setCart(JSON.parse(storedCart) as CartItem[]);
-        } catch (e) {
-          console.error("Failed to parse cart from localStorage:", e);
-          localStorage.removeItem(CART_STORAGE_KEY);
+  const { isAuthenticated } = useAuth();
+
+  const syncCart = useCallback(async () => {
+    if (!isAuthenticated) {
+      setCart([]);
+      setOrderId(null);
+      setTotalValue(0);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const cartData = await getCartData();
+
+      if (cartData && Array.isArray(cartData.items)) {
+        setTotalValue(cartData.total || 0);
+
+        if (cartData.items.length > 0) {
+          const orderIdFromApi = cartData.items[0].orderId;
+          setOrderId(orderIdFromApi);
+
+          const frontEndCart: CartItem[] = cartData.items.map((apiItem) => ({
+            ...apiItem.item,
+            orderItemId: apiItem.id, // ID do OrderItem
+            orderId: apiItem.orderId,
+            quantity: apiItem.quantity,
+            name:
+              apiItem.item.description ||
+              apiItem.item.description ||
+              "Item sem nome",
+          }));
+
+          setCart(frontEndCart);
+        } else {
           setCart([]);
+          setOrderId(null);
         }
+      } else {
+        setCart([]);
+        setOrderId(null);
+        setTotalValue(0);
       }
+    } catch (error) {
+      console.error("Erro ao sincronizar carrinho:", error);
+      setCart([]);
+      setOrderId(null);
+      setTotalValue(0);
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
-  // Efeito 2: Salva o carrinho no localStorage sempre que o estado 'cart' mudar (e estiver no cliente)
   useEffect(() => {
-    if (isClient && typeof window !== "undefined") {
-      if (cart.length > 0) {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-      } else {
-        localStorage.removeItem(CART_STORAGE_KEY);
-      }
+    syncCart();
+  }, [syncCart]);
+
+  const addToCart = async (item: Item, quantity: number = 1) => {
+    if (!isAuthenticated) return;
+    await addItemToCart(item.id);
+    await syncCart();
+  };
+
+  const removeFromCart = async (itemId: number) => {
+    if (!isAuthenticated) return;
+    await changeItemQuantityApi(itemId, 0);
+    await syncCart();
+  };
+
+  const updateQuantity = async (itemId: number, quantity: number) => {
+    if (!isAuthenticated || quantity < 0) return;
+    await changeItemQuantityApi(itemId, quantity);
+    await syncCart();
+  };
+
+  const clearCart = async () => {
+    if (!isAuthenticated) return;
+    await Promise.all(cart.map((item) => changeItemQuantityApi(item.id, 0)));
+    await syncCart();
+  };
+
+  const confirmPurchase = async (currentOrderId: number): Promise<any> => {
+    if (!isAuthenticated || !currentOrderId) return null;
+
+    setIsLoading(true);
+    try {
+      const confirmedOrder = await confirmCartApi(currentOrderId);
+      alert(`Pedido #${currentOrderId} finalizado com sucesso!`);
+      await syncCart();
+      return confirmedOrder;
+    } catch (error) {
+      console.error("Erro na confirmação da compra:", error);
+      alert("Erro ao finalizar a compra. Tente novamente.");
+      return null;
+    } finally {
+      setIsLoading(false);
     }
-  }, [cart, isClient]);
-
-  const addToCart = (item: Item, quantity: number) => {
-    setCart((currentCart) => {
-      const existingItem = currentCart.find((ci) => ci.id === item.id);
-
-      if (existingItem) {
-        return currentCart.map((ci) =>
-          ci.id === item.id ? { ...ci, quantity: ci.quantity + quantity } : ci
-        );
-      } else {
-        const newCartItem: CartItem = {
-          ...item,
-          quantity: Math.max(1, quantity),
-        };
-        return [...currentCart, newCartItem];
-      }
-    });
-  };
-
-  const removeFromCart = (itemId: number) => {
-    setCart((currentCart) => currentCart.filter((ci) => ci.id !== itemId));
-  };
-
-  const updateQuantity = (itemId: number, quantity: number) => {
-    setCart((currentCart) =>
-      currentCart.map((ci) =>
-        ci.id === itemId ? { ...ci, quantity: Math.max(1, quantity) } : ci
-      )
-    );
-  };
-
-  const clearCart = () => {
-    setCart([]);
   };
 
   const contextValue: CartContextType = {
     cart,
+    orderId,
+    totalValue,
+    isLoading,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
+    confirmPurchase,
   };
 
   return (

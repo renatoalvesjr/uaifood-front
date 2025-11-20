@@ -1,13 +1,36 @@
+// src/models/cart.interface.ts
+
 import { Item } from "./item.interface";
 
+export interface CartApiResponse {
+    items: CartItemApi[];
+    total: number;
+
+}
+export interface CartItemApi {
+    id: number; 
+    orderId: number;
+    itemId: number;
+    quantity: number;
+    item: Item;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface CartItem extends Item {
+  orderItemId: number;
+  orderId: number; 
   quantity: number;
 }
 
 export interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: Item, quantity: number) => void;
-  removeFromCart: (itemId: number) => void;
-  updateQuantity: (itemId: number, quantity: number) => void;
-  clearCart: () => void;
+  orderId: number | null;
+  totalValue: number;
+  isLoading: boolean;
+  addToCart: (item: Item, quantity: number) => Promise<void>;
+  removeFromCart: (itemId: number) => Promise<void>;
+  updateQuantity: (itemId: number, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  confirmPurchase: (orderId: number) => Promise<any>; 
 }

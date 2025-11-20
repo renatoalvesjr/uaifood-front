@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { createAccount } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
@@ -14,6 +15,8 @@ export default function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async () => {
     try {
@@ -28,6 +31,7 @@ export default function SignupForm() {
         email,
         password,
       });
+      router.push("/login");
     } catch (error) {
       setError((error as Error).message);
       setLoading(false);

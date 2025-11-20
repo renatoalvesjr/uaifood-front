@@ -11,7 +11,6 @@ export default function Home() {
   }
   return (
     <div>
-      <TopMenu />
       <div className="flex flex-col items-center justify-centers dark:bg-black">
         {isLoading && <p>Loading...</p>}
         <ItemList />

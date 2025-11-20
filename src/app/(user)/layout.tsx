@@ -7,7 +7,6 @@ export default function UserLayout({
 }>) {
   return (
     <>
-      <TopMenu />
       <div className="">{children}</div>
     </>
   );

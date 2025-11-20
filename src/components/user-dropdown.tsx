@@ -33,6 +33,11 @@ export function UserDropdown(this: never) {
           >
             Profile
           </DropdownMenuItem>
+          {user?.type === "ADMIN" &&
+            <DropdownMenuItem onClick={handleMenuItemClick.bind(this, "/admin/management")}>
+              Management
+            </DropdownMenuItem>
+          }
           <DropdownMenuItem onClick={handleMenuItemFunction.bind(this, logout)}>
             Logout
           </DropdownMenuItem>

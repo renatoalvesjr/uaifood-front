@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 
 export function ItemForm() {
   const [itemName, setItemName] = useState("");
-  const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
@@ -18,8 +17,10 @@ export function ItemForm() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const fetchedCategories = await getCategories();
-        setCategories(fetchedCategories);
+        const fetchedCategories: Category[] = await getCategories();
+        setCategories(
+          Array.isArray(fetchedCategories) ? fetchedCategories : []
+        );
       } catch (error) {
         setError("Erro ao buscar categorias.");
       }
@@ -33,14 +34,13 @@ export function ItemForm() {
     setError(null);
 
     try {
+      console.log(itemName, price, categoryId);
       await createItem({
-        name: itemName,
-        description,
-        price: parseFloat(price),
+        description: itemName,
+        unitPrice: parseFloat(price),
         categoryId: parseInt(categoryId),
       });
       setItemName("");
-      setDescription("");
       setPrice("");
       setCategoryId("");
     } catch (error) {
@@ -60,13 +60,6 @@ export function ItemForm() {
         disabled={isLoading}
       />
       <Input
-        type="text"
-        placeholder="Descrição"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        disabled={isLoading}
-      />
-      <Input
         type="number"
         placeholder="Preço"
         value={price}
@@ -76,13 +69,13 @@ export function ItemForm() {
       <select
         value={categoryId}
         onChange={(e) => setCategoryId(e.target.value)}
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border-2 border-black rounded-md bg-white"
         disabled={isLoading}
       >
         <option value="">Selecione uma categoria</option>
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
-            {category.name}
+            {category.description}
           </option>
         ))}
       </select>

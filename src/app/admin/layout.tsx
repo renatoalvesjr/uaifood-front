@@ -27,6 +27,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       router.push("/");
       return;
     }
+
+    if(user.type === UserType.ADMIN) {
+      setHasPermission(true);
+    }
   }, [isAuthenticated, isLoading, router, user]);
 
   if (isLoading || !hasPermission) {

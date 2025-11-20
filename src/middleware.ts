@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedRoutes = ["/profile","/dashboard"];
+const protectedRoutes = ["/profile","/dashboard","/admin"];
 
 export function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("access_token")?.value;
@@ -22,5 +22,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/profile/:path*","/dashboard/:path*", "/login"],
+  matcher: ["/profile/:path*","/dashboard/:path*", "/login","/admin/:path*"],
 };
