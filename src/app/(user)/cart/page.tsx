@@ -1,23 +1,22 @@
-// src/app/(user)/cart/page.tsx
-
 "use client";
-
+import BackButton from "@/components/back-button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/cart.context";
 import { formatCurrency } from "@/lib/utils";
-import BackButton from "@/components/back-button";
-import { Button } from "@/components/ui/button"; 
-import { Input } from "@/components/ui/input"; 
-import { Loader2 } from "lucide-react"; 
-import { ConfirmationModal } from "@/components/confirmation-modal"; // 👈 Importa o novo Modal
-import { useRouter } from "next/navigation"; // 👈 Importa o useRouter
-import { useState } from "react"; // 👈 Importa o useState para gerenciar o estado do modal
-
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
-  const { cart, orderId, isLoading, updateQuantity, clearCart, confirmPurchase, totalValue } = useCart(); 
-  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar a abertura do modal
-  const [lastOrderId, setLastOrderId] = useState<number | null>(null); // Armazena o ID do pedido confirmado
-
+  const {
+    cart,
+    orderId,
+    isLoading,
+    updateQuantity,
+    clearCart,
+    totalValue,
+    toPaymentCart,
+  } = useCart();
   const router = useRouter();
   const cartItems = Array.isArray(cart) ? cart : [];
   const totalCartValue = totalValue;
@@ -32,19 +31,9 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (cartItems.length === 0 || !orderId || isLoading) return;
-    setIsModalOpen(true);
-    
-  };
 
-  const handleModalConfirm = async () => {
-    const confirmedOrder = await confirmPurchase(orderId!); 
-
-    if (confirmedOrder) {
-      const finalOrderId = confirmedOrder.id || orderId; 
-      setLastOrderId(finalOrderId);
-      setIsModalOpen(true);
-    }
-    setIsModalOpen(false);
+    await toPaymentCart(orderId);
+    router.push("/payment");
   };
 
   if (isLoading) {
@@ -60,27 +49,35 @@ export default function CartPage() {
     <>
       <div className="container mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
-          <BackButton /> 
+          <BackButton />
           <h1 className="text-3xl font-bold">Seu Carrinho</h1>
         </div>
 
         {cartItems.length === 0 ? (
-          <p className="text-lg text-center mt-10">Seu carrinho está vazio. Adicione alguns itens!</p>
+          <p className="text-lg text-center mt-10">
+            Seu carrinho está vazio. Adicione alguns itens!
+          </p>
         ) : (
           <div className="space-y-4">
-            {cartItems.map((item) => ( 
+            {cartItems.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center p-4 border-4 border-black shadow-[5px_5px_0_0_#000] hover:shadow-[3px_3px_0_0_#000] bg-white transition-shadow"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-lg truncate">{item.description}</p>
-                  <p className="text-sm text-gray-500">{formatCurrency(item.unitPrice)}/un</p>
+                  <p className="font-semibold text-lg truncate">
+                    {item.description}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {formatCurrency(item.unitPrice)}/un
+                  </p>
                 </div>
 
                 <div className="flex items-center mx-4 space-x-2">
-                  <Button 
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                  <Button
+                    onClick={() =>
+                      handleUpdateQuantity(item.id, item.quantity - 1)
+                    }
                     size="sm"
                     disabled={isLoading}
                     className="text-xl"
@@ -90,13 +87,20 @@ export default function CartPage() {
                   <Input
                     type="number"
                     value={item.quantity}
-                    onChange={(e) => handleUpdateQuantity(item.id, parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleUpdateQuantity(
+                        item.id,
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     className="w-16 text-center rounded-none border-2 border-black shadow-[5px_5px_0_0_#000] hover:shadow-[3px_3px_0_0_#000] "
                     min="0"
                     disabled={isLoading}
                   />
-                  <Button 
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                  <Button
+                    onClick={() =>
+                      handleUpdateQuantity(item.id, item.quantity + 1)
+                    }
                     size="sm"
                     disabled={isLoading}
                   >
@@ -116,7 +120,7 @@ export default function CartPage() {
                 <span>{formatCurrency(totalCartValue)}</span>
               </div>
             </div>
-            
+
             <div className="flex justify-end mt-6 space-x-4">
               <Button
                 onClick={clearCart}
@@ -140,15 +144,6 @@ export default function CartPage() {
           </div>
         )}
       </div>
-
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleModalConfirm}
-        title="Pedido Finalizado com Sucesso!"
-        message={`Seu pedido #${lastOrderId} foi enviado para a cozinha! O valor total foi de ${formatCurrency(totalCartValue)}.`}
-        confirmText="ok"
-      />
     </>
   );
 }

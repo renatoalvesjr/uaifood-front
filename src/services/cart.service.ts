@@ -16,12 +16,27 @@ export async function changeItemQuantityApi(itemId: number, quantity: number) {
   await api.post("/cart/change-quantity", { itemId, quantity });
 }
 
-export async function confirmCartApi(orderId: number): Promise<any> {
+export async function addItemToCart(itemId: number) {
+  const response = await api.post(`/cart/add-item/${itemId}`);
+  return response.data;
+}
+
+export async function toPaymentCartApi(orderId: number): Promise<any> {
   const response = await api.post(`/cart/to-payment/${orderId}`);
   return response.data;
 }
 
-export async function addItemToCart(itemId: number) {
-  const response = await api.post(`/cart/add-item/${itemId}`);
+export async function completeOrderApi(orderId: number): Promise<any> {
+  const response = await api.post(`/cart/complete-order/${orderId}`);
+  return response.data;
+}
+
+export async function cancelOrderApi(orderId: number): Promise<any> {
+  const response = await api.post(`/cart/cancel-order/${orderId}`);
+  return response.data;
+}
+
+export async function getFinalizedOrders() {
+  const response = await api.get("/cart/finalized-orders");
   return response.data;
 }

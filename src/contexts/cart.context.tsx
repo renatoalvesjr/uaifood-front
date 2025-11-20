@@ -15,8 +15,10 @@ import { CartItem, CartContextType } from "@/models/cart.interface";
 import {
   getCartData,
   changeItemQuantityApi,
-  confirmCartApi,
   addItemToCart,
+  toPaymentCartApi,
+  completeOrderApi,
+  cancelOrderApi,
 } from "@/services/cart.service";
 import { useAuth } from "./auth.context";
 
@@ -123,16 +125,48 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     await syncCart();
   };
 
-  const confirmPurchase = async (currentOrderId: number): Promise<any> => {
+  const toPaymentCart = async (currentOrderId: number): Promise<any> => {
     if (!isAuthenticated || !currentOrderId) return null;
 
     setIsLoading(true);
     try {
-      const confirmedOrder = await confirmCartApi(currentOrderId);
+      const confirmedOrder = await toPaymentCartApi(currentOrderId);
       await syncCart();
       return confirmedOrder;
     } catch (error) {
       console.error("Erro na confirmação da compra:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const completeOrder = async (currentOrderId: number): Promise<any> => {
+    if (!isAuthenticated || !currentOrderId) return null;
+
+    setIsLoading(true);
+    try {
+      const updatedOrder = await completeOrderApi(currentOrderId);
+      await syncCart();
+      return updatedOrder;
+    } catch (error) {
+      console.error("Erro ao atualizar o status da compra:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const cancelOrder = async (currentOrderId: number): Promise<any> => {
+    if (!isAuthenticated || !currentOrderId) return null;
+
+    setIsLoading(true);
+    try {
+      const updatedOrder = await cancelOrderApi(currentOrderId);
+      await syncCart();
+      return updatedOrder;
+    } catch (error) {
+      console.error("Erro ao atualizar o status da compra:", error);
       return null;
     } finally {
       setIsLoading(false);
@@ -148,7 +182,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     removeFromCart,
     updateQuantity,
     clearCart,
-    confirmPurchase,
+    toPaymentCart,
+    completeOrder,
+    cancelOrder,
   };
 
   return (

@@ -32,5 +32,7 @@ export interface CartContextType {
   removeFromCart: (itemId: number) => Promise<void>;
   updateQuantity: (itemId: number, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
-  confirmPurchase: (orderId: number) => Promise<any>; 
+  toPaymentCart: (orderId: number) => Promise<any>;
+  completeOrder: (orderId: number) => Promise<any>;
+  cancelOrder: (orderId: number) => Promise<any>;
 }

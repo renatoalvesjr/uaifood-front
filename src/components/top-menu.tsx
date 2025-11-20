@@ -20,16 +20,17 @@ export function TopMenu() {
 
   const routes = [
     { name: "Home", path: "/" },
-    { name: "Cart", path: "/cart" },
+    { name: "Carrinho", path: "/cart" },
+    { name: "Pedidos", path: "/orders" },
   ];
 
   return (
     <header className="flex w-full items-center justify-between p-4 bg-red-500 shadow-md border-b-4 border-black">
-      <Link href="/" className="flex text-white font-bold text-xl p-2">
+      <Link href="/" className="flex text-black hover:text-yellow-300 transition-colors font-bold text-xl p-2">
         UaiFood
       </Link>
       {isAuthenticated && (
-        <div className="flex gap-4 border border-black bg-black *:text-white p-2 *:hover:text-gray-100  rounded-full">
+        <div className="flex gap-4 text-black *:hover:text-yellow-300 p-2 *:transition-colors">
           {routes.map((route) => (
             <Link key={route.path} href={route.path} className="px-2">
               {route.name}
