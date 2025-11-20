@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
 
 const BackButton = () => {
   const router = useRouter();
@@ -8,7 +9,7 @@ const BackButton = () => {
     router.push("/");
   };
 
-  return <button type="reset" onClick={handleBackClick}>Voltar</button>;
+  return <Button type="reset" onClick={handleBackClick}>Voltar</Button>;
 };
 
 export default BackButton;

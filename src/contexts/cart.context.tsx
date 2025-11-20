@@ -129,12 +129,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     setIsLoading(true);
     try {
       const confirmedOrder = await confirmCartApi(currentOrderId);
-      alert(`Pedido #${currentOrderId} finalizado com sucesso!`);
       await syncCart();
       return confirmedOrder;
     } catch (error) {
       console.error("Erro na confirmação da compra:", error);
-      alert("Erro ao finalizar a compra. Tente novamente.");
       return null;
     } finally {
       setIsLoading(false);

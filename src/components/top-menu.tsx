@@ -7,7 +7,7 @@ import Link from "next/link";
 import CartButton from "./cart-button";
 
 export function TopMenu() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
 
   const handleLogin = () => {
